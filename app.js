@@ -9,6 +9,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const index_route = require("./routes/index");
 const authors_route = require("./routes/authors");
+const books_route = require("./routes/books");
 
 const app = express();
 // set view engine
@@ -34,5 +35,6 @@ db.once("open", () => console.log("connected successful"));
 // use routes
 app.use("/", index_route);
 app.use("/authors", authors_route);
+app.use("/books", books_route);
 
 app.listen(process.env.PORT || 3000);

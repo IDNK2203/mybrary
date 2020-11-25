@@ -2,10 +2,10 @@
 const express = require("express");
 const router = express.Router();
 const Author = require("../models/authors");
-let search_opts;
+// let search_opts;
 // All authors
 router.get("/", async (req, res) => {
-  search_opts = {};
+  let search_opts = {};
   if (req.query.name != null && req.query.name != "") {
     search_opts.name = new RegExp(req.query.name, "i");
   }
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
 
 // Get a single author
 router.get("/new", (req, res) => {
-  res.render("authors/new", { Author: new Author({}) });
+  res.render("authors/new", { author: new Author({}) });
 });
 
 // create a new author
@@ -40,7 +40,7 @@ router.post("/", async (req, res) => {
     console.log(author);
     res.render("authors/new", {
       Author: author,
-      error_msg: "an error occured during this process",
+      error_msg: "Error creating author",
     });
   }
 });
