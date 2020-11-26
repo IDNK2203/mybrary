@@ -9,7 +9,6 @@ router.get("/", async (req, res) => {
   if (req.query.name != null && req.query.name != "") {
     search_opts.name = new RegExp(req.query.name, "i");
   }
-  console.log(search_opts);
   try {
     const authors = await Author.find(search_opts).sort({ createdAt: -1 });
     res.render("authors/index", {
@@ -39,7 +38,7 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.log(author);
     res.render("authors/new", {
-      Author: author,
+      author: author,
       error_msg: "Error creating author",
     });
   }

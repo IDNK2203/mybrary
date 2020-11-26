@@ -42,3 +42,6 @@
 <%=book.description %> </textarea
   >
 </p>
+<div>
+  <%= book.publishedAt == null ? '' :book.publishedAt.toISOString().split('T')[0]  %> 
+</div>

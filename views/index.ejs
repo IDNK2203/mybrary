@@ -1,1 +1,6 @@
-index view
+<h2> Recently Added Books</h2>
+<div>
+    <% books.forEach((book)=>{ %>
+      <img height="" width="150" src="<%= book.cover_image_path %>" alt="">
+    <% }) %>  
+  </div>

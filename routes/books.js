@@ -23,19 +23,31 @@ const upload = multer({
 });
 
 // All books
-router.get("/", async (req, res) => {
-  res.render("books/index");
-  // try {
 
-  // } catch (error) {
-  //   console.log(error);
-  //   res.redirect("/");
-  // }
+router.get("/", async (req, res) => {
+  let query = Book.find()
+  if (req.query.title != null && req.query.title != "") {
+    query = query.regex("title" , new RegExp(req.query.title , "i"))
+  }
+  if (req.query.published_before != null && req.query.published_before != "") {
+    query = query.lte("publishedAt" , req.query.published_before)
+  }
+  if (req.query.published_after != null && req.query.published_after != "") {
+    query = query.gte("publishedAt" , req.query.published_after)
+  }
+  try {
+  const books = await query.exec()
+  let search_opts = req.query ;
+  res.render("books/index" , { books, search_opts});
+  } catch (error) {
+    console.log(error);
+    res.redirect("/");
+  }
 });
 
 // create a new book
 router.get("/new", async (req, res) => {
-  let params = {};
+  render_new_page(res , new Book({}) )
 });
 
 // handle new book form submission
@@ -56,25 +68,29 @@ router.post("/", upload.single("cover_image"), async (req, res) => {
     // res.redirect(`/books/${__book.id}`);
   } catch (err) {
     console.error(err);
-    res.render("books/new", {
-      book: book,
-      authors: authors,
-      error_msg: "Error creating book",
-    });
+    if(req.file) {
+      remove_book(file_name)
+    }
+    render_new_page(res , book , true);
   }
 });
 
-let render_new_page = async (res, params) => {
+let render_new_page = async (res, book ,hasError = false ) => {
+  let params = {};
   try {
-    params.book = new Book({});
+    params.book = book;
     const authors = await Author.find({});
     params.authors = authors;
+    if(hasError)params.error_msg = "Error creating book";
     res.render("books/new", params);
   } catch (err) {
     console.error(err);
   }
 };
+let remove_book = function(file_name){
+  fs.unlink(`${upload_path}/${file_name}` ,(err)=>{
+    console.error(err)
+  })      
+}
 
-// error handelling
-// custom render new_page_middleware
 module.exports = router;

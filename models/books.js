@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const path = require("path");
 const Schema = mongoose.Schema;
 
 const cover_image_base_url = "/uploads/book-covers";
@@ -34,6 +34,12 @@ const BookSchema = new Schema(
   },
   { timestamps: true }
 );
+
+BookSchema.virtual("cover_image_path" ).get(function () {
+  if(this.cover_image != null){
+    return path.join("/", cover_image_base_url, this.cover_image);
+  }
+})
 
 const Book = mongoose.model("book", BookSchema);
 
