@@ -1,12 +1,7 @@
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
 const express = require("express");
 const Author = require("../models/authors");
 const Book = require("../models/books");
-const { cover_image_base_url } = require("../models/books");
 const router = express.Router();
-const upload_path = path.join("public", cover_image_base_url);
 const image_mimetypes = [
   "image/png",
   "image/gif",
@@ -15,30 +10,24 @@ const image_mimetypes = [
   "image/tiff",
   "image/webp",
 ];
-const upload = multer({
-  dest: upload_path,
-  fileFilter: (req, file, cb) => {
-    cb(null, image_mimetypes.includes(file.mimetype));
-  },
-});
 
 // All books
 
 router.get("/", async (req, res) => {
-  let query = Book.find()
+  let query = Book.find();
   if (req.query.title != null && req.query.title != "") {
-    query = query.regex("title" , new RegExp(req.query.title , "i"))
+    query = query.regex("title", new RegExp(req.query.title, "i"));
   }
   if (req.query.published_before != null && req.query.published_before != "") {
-    query = query.lte("publishedAt" , req.query.published_before)
+    query = query.lte("publishedAt", req.query.published_before);
   }
   if (req.query.published_after != null && req.query.published_after != "") {
-    query = query.gte("publishedAt" , req.query.published_after)
+    query = query.gte("publishedAt", req.query.published_after);
   }
   try {
-  const books = await query.exec()
-  let search_opts = req.query ;
-  res.render("books/index" , { books, search_opts});
+    const books = await query.exec();
+    let search_opts = req.query;
+    res.render("books/index", { books, search_opts });
   } catch (error) {
     console.log(error);
     res.redirect("/");
@@ -47,12 +36,11 @@ router.get("/", async (req, res) => {
 
 // create a new book
 router.get("/new", async (req, res) => {
-  render_new_page(res , new Book({}) )
+  render_new_page(res, new Book({}));
 });
 
 // handle new book form submission
-router.post("/", upload.single("cover_image"), async (req, res) => {
-  const file_name = req.file != null ? req.file.filename : null;
+router.post("/", async (req, res) => {
   const authors = await Author.find({});
   const book = new Book({
     title: req.body.title,
@@ -60,37 +48,42 @@ router.post("/", upload.single("cover_image"), async (req, res) => {
     page_count: req.body.page_count,
     description: req.body.description,
     publishedAt: new Date(req.body.publishedAt),
-    cover_image: file_name,
   });
+  save_image_cover(book, req.body.cover_image);
+
   try {
     const __book = await book.save();
     res.redirect("/books");
     // res.redirect(`/books/${__book.id}`);
   } catch (err) {
     console.error(err);
-    if(req.file) {
-      remove_book(file_name)
-    }
-    render_new_page(res , book , true);
+
+    render_new_page(res, book, true);
   }
 });
 
-let render_new_page = async (res, book ,hasError = false ) => {
+let render_new_page = async (res, book, hasError = false) => {
   let params = {};
   try {
     params.book = book;
     const authors = await Author.find({});
     params.authors = authors;
-    if(hasError)params.error_msg = "Error creating book";
+    if (hasError) params.error_msg = "Error creating book";
     res.render("books/new", params);
   } catch (err) {
     console.error(err);
   }
 };
-let remove_book = function(file_name){
-  fs.unlink(`${upload_path}/${file_name}` ,(err)=>{
-    console.error(err)
-  })      
-}
+
+let save_image_cover = (book, cover_image) => {
+  if (cover_image == null) {
+    return;
+  }
+  const image_obj = JSON.parse(cover_image);
+  if (image_obj != null && image_mimetypes.includes(image_obj.type)) {
+    book.cover_image = new Buffer.from(image_obj.data, "base64");
+    book.cover_image_type = image_obj.type;
+  }
+};
 
 module.exports = router;
