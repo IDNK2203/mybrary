@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const express = require("express");
+const method_override = require("method-override");
 const ejs = require("ejs");
 const express_layouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
@@ -19,6 +20,7 @@ app.set("views", `${__dirname}/views`);
 // location of layout files [all files are to be embedded in layout fils]
 app.set("layout", "layouts/layout");
 app.use(express_layouts);
+app.use(method_override("_method"));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: false }));
 // PUT OUR STAIC LIKE CSS AND
 app.use(express.static("public"));
@@ -38,7 +40,3 @@ app.use("/authors", authors_route);
 app.use("/books", books_route);
 
 app.listen(process.env.PORT || 4000);
-
-
-
-

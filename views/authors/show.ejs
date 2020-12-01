@@ -1,0 +1,11 @@
+<h2><%= author.name %></h2>
+<a href="/authors/<%= author.id%>/edit">Edit</a>
+<%- include("./partials/_delete-form.ejs" , { url:author.id}) %> <%
+if(books_by_author.length > 0) {%>
+<h2>Books by Authors</h2>
+<div>
+  <% books_by_author.forEach((book)=>{ %>
+  <img height="" width="150" src="<%= book.cover_image_path %>" alt="" />
+  <% }) %>
+</div>
+<% } %>
