@@ -2,6 +2,7 @@
   <label for="title"> Title </label>
   <input type="text" id="title" name="title" value="<%= book.title %>" />
 </p>
+
 <p>
   <label for="author"> Author</label>
   <select name="author" id="author">
@@ -42,6 +43,3 @@
 <%=book.description %> </textarea
   >
 </p>
-<div>
-  <%= book.publishedAt == null ? '' :book.publishedAt.toISOString().split('T')[0]  %> 
-</div>

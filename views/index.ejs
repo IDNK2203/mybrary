@@ -1,6 +1,8 @@
 <h2>Recently Added Books</h2>
 <div>
   <% books.forEach((book)=>{ %>
-  <img height="" width="150" src="<%= book.cover_image_path %>" alt="" />
+  <a href="/books/<%= book.id%>">
+    <img height="" width="150" src="<%= book.cover_image_path %>" alt="" />
+  </a>
   <% }) %>
 </div>

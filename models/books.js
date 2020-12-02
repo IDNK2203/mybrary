@@ -10,7 +10,7 @@ const BookSchema = new Schema(
     author: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Author",
+      ref: "author",
     },
     page_count: {
       type: Number,
